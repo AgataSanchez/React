@@ -2,11 +2,12 @@ import React, {Component} from 'react'
 import * as BooksAPI from './BooksAPI'
 import Book from './Book'
 import {Link} from 'react-router-dom'
-
+import {DebounceInput} from 'react-debounce-input'
 
 class BookSearch extends Component{
 	state={
-      books:[]
+      books:[],
+      error:false
     }
 
 handleChange=(event)=>{
@@ -20,10 +21,11 @@ handleChange=(event)=>{
            return book.length>0 ? (book[0]) : (bookRes);
           })
           
-          this.setState({books: listBooks});
+          this.setState({books: listBooks, error:false});
         }else
-          this.setState({books:[]});
-
+          this.setState({books:[], error:true});
+        
+        
     });
     
   }else{
@@ -51,29 +53,27 @@ render(){
                   However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
                   you don't find a specific author or title. Every search is limited by search terms.
                 */}
-                <input type="text" placeholder="Search by title or author" onChange={this.handleChange} />
-                
-                
+      			<DebounceInput  type="text" placeholder="Search by title or author" debounceTimeout={200} 
+				onChange={this.handleChange} />
+            
               </div>
             </div>
             <div className="search-books-results">
-       
-				<ol className="books-grid">
-      {
-      	(this.state.books!== undefined && this.state.books.length>0) && this.state.books.map((book, index)=>(
-    		<li key={index}>
-             <Book bookRead={book} onAddBook={this.handleUpdateBook}/>
-			</li>
-    	))
-      	
-	  }
-	</ol>
-			
+			{(!this.state.error) ? (
+              	<ol className="books-grid">
+                {
+                  (this.state.books!== undefined && this.state.books.length>0) && this.state.books.map((book, index)=>(
+                      <li key={index}>
+                       <Book bookRead={book} onAddBook={this.handleUpdateBook}/>
+                      </li>
+                  ))
+
+                }
+				</ol>
+				) : (<p> Books not found </p>)}
+				
             </div>
           </div>
-     
-	
-
     )
 
 }
